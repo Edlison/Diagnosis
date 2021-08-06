@@ -44,19 +44,22 @@ def check_contain_chinese(check_str):
 
 
 def eval_img(pred):
-    if pred == '0':
-        answer = "您好，恭喜您在乳腺癌诊断报告中被确认为阴性，请继续保持良好生活习惯，可以在对话框输入xx食物功效获得健康tips！"
-    elif pred == '1':
-        answer = "您好，非常遗憾您在本次乳腺癌诊断报告中被确认为阳性，请尽快联系您的负责医师进行进一步的诊断及治疗，可以通过以下问题了解乳腺癌的相关知识：" \
-                 "乳腺癌是什么" \
-                 "乳腺癌是什么原因造成的" \
-                 "乳腺癌能吃什么食物" \
-                 "乳腺癌能治愈吗" \
-                 "乳腺癌的治疗方法"
-    elif pred == '-1':
-        answer = 'Size of image error.'
-    elif pred == '-2':
-        answer = 'File uploaded is not image.'
+    if pred == 0:
+        answer = "Hello, congratulations! You were confirmed as negative in the breast cancer diagnosis report. " \
+                 "Please continue to maintain good habits! You can enter the food effect in the dialog box to get health tips!"
+    elif pred == 1:
+        answer = "Hello, I am very sorry that you were confirmed as positive in this breast cancer diagnosis report. " \
+                 "Please contact your responsible physician for further diagnosis and treatment as soon as possible. " \
+                 "You can learn about breast cancer related knowledge through the following questions:\n" \
+                 "What is breast cancer?\n" \
+                 "What causes breast cancer?\n" \
+                 "What foods can you eat for breast cancer?\n" \
+                 "Can breast cancer be cured?\n" \
+                 "Breast cancer treatment?"
+    elif pred == -1:
+        answer = 'error size.'
+    elif pred == -2:
+        answer = 'error file.'
     else:
         answer = 'sys error.'
     return answer

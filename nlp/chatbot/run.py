@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
     # Set checkpoint to load from; set to None if starting from scratch
     # loadFilename = None
-    loadFilename = './data/50000_checkpoint.tar'
+    loadFilename = 'nlp/chatbot/data/50000_checkpoint.tar'
 
     # run(loadFilename, model_name, corpus_name, batch_size, attn_model, hidden_size, encoder_n_layers, decoder_n_layers, dropout)
     searcher, voc = load_pretrained(loadFilename, attn_model, hidden_size, encoder_n_layers, decoder_n_layers, dropout)

@@ -1,7 +1,9 @@
 $(document).ready(function() {
-    $("#pic-p").on("change", upload_pic);
+    $("#pic-p").on("change", getPath);
     $("#subque").on("click", flash_question);
 })
+
+var base46;
 
 function getObjectURL(file) {
     var url = null;
@@ -15,12 +17,63 @@ function getObjectURL(file) {
     return url;
 }
 
+function getPath()
+{
+    var obj = document.getElementById("pic")
+  if(obj)
+    {
+
+    if (window.navigator.userAgent.indexOf("MSIE")>=1)
+      {
+        obj.select();
+      }
+
+    else if(window.navigator.userAgent.indexOf("Firefox")>=1)
+      {
+      if(obj.files)
+        {
+            var reader  = new FileReader();
+            var base = null
+            reader.readAsDataURL(obj.files[0])
+            reader.onload = function(){//完成后this.result为二进制流
+                 console.log(this.result);
+                 base46 = this.result
+                // var startNum = base46.indexOf("base64,");
+                // startNum = startNum * 1 + 7;
+                // //去除前部格式信息（如果有需求）
+                // base46 = base46.slice(startNum);
+                upload_pic()
+      　　　　}
+        }
+      }
+    else if(window.navigator.userAgent.indexOf("Chrome")>=1)
+      {
+      if(obj.files)
+        {
+            var reader  = new FileReader();
+            var base = null
+            reader.readAsDataURL(obj.files[0])
+            reader.onload = function(){//完成后this.result为二进制流
+                 console.log(this.result);
+                 base46 = this.result
+                // var startNum = base46.indexOf("base64,");
+                // startNum = startNum * 1 + 7;
+                // //去除前部格式信息（如果有需求）
+                // base46 = base46.slice(startNum);
+                upload_pic()
+      　　　　}
+        }
+      }
+    }
+}
+
 function upload_pic(){
     var p = document.getElementById("pic").files[0]
+    var input = document.getElementById("pic")
     var pic = getObjectURL(p);
 
     $.post('/i', {
-        'pic': pic
+        'pic': base46
     }).done(function (response) {
         var res = response['res']
         // $(".hero-content").append("<img src='"+res+"'>")
@@ -37,34 +90,12 @@ function upload_pic(){
             "              </tr>\n" +
             "              <tr>\n" +
             "                <th colspan=\"2\">\n" +
-            "                  <p style=\"padding: 10px 0\">"+res+"</p>\n" +
+            "                  <p style=\"padding: 10px 0; width: 550px; overflow-wrap: break-word\">"+res+"</p>\n" +
             "                </th>\n" +
             "              </tr>\n" +
             "            </table>"
-    }).fail(function (){
-        alert("server error")
+        $("#message-pre").append("<div class=\"d-flex flex-row bd-highlight\"><p class=\"answer\">"+res+"</p></div>")
     })
-}
-
-function upload_pic_plus() {
-    let formData = new FormData($("#pic")[0])
-        console.log('点击提交之后，打印FormData中的数据')
-        console.log(formData.get('pic'))
-        $.ajax({
-            url: 'http://127.0.0.1:5000/i',
-            type: 'POST',
-            data: formData,
-            async: false,
-            cache: false,
-            contentType: false,
-            processData: false,
-            success: function(returndata) {
-                alert(returndata);
-            },
-            error: function(error) {
-                alert(error);
-            }
-        })
 }
 
 function flash_question(){
@@ -84,6 +115,6 @@ function flash_question(){
         var modal_dialog = document.getElementById("message")
         modal_dialog.scrollTop=modal_dialog.scrollHeight
     }).fail(function (){
-        alert("server error")
+        alert("nonononono")
     })
 }
