@@ -7,7 +7,11 @@
 from nlp.qa.question_classifier import *
 from nlp.qa.question_parser import *
 from nlp.qa.answer_search import *
-from translate import Translator
+import json
+import random
+import requests
+import urllib.parse
+from hashlib import md5
 from nlp.chatbot import api_chatbot
 
 
@@ -23,8 +27,8 @@ class ChatBotGraph:
         res_classify = self.classifier.classify(sent)
         if not res_classify:
             if translator_EN:
-                sent = translator_EN.translate(sent)
-                print('before chatbot ', sent)
+                sent = translator_EN(sent)
+                print('[NLP]Casualty ', sent)
                 answer = api_chatbot(sent)
             return answer
         res_sql = self.parser.parser_main(res_classify)
@@ -39,8 +43,43 @@ def check_contain_chinese(check_str):
     for ch in check_str.encode('utf-8').decode('utf-8'):
         if u'\u4e00' <= ch <= u'\u9fff':
             return True
-
     return False
+
+
+def translate_api_CH(text):
+    appid = '20210806000909193'
+    secretKey = 'ejPq0aY5NhGpfMqOVZDJ'
+    myurl = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
+    q = text
+    fromLang = 'en'
+    toLang = 'zh'
+    salt = random.randint(32768, 65536)
+    sign = appid+q+str(salt)+secretKey
+    m1 = md5()
+    m1.update(sign.encode("utf-8"))
+    sign = m1.hexdigest()
+    myurl = myurl+'?appid='+appid+'&q='+urllib.parse.quote(q)+'&from='+fromLang+'&to='+toLang+'&salt='+str(salt)+'&sign='+sign
+    res = json.loads(requests.get(myurl).text)['trans_result'][0]['dst']
+
+    return res
+
+
+def translate_api_EN(text):
+    appid = '20210806000909193'
+    secretKey = 'ejPq0aY5NhGpfMqOVZDJ'
+    myurl = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
+    q = text
+    fromLang = 'zh'
+    toLang = 'en'
+    salt = random.randint(32768, 65536)
+    sign = appid+q+str(salt)+secretKey
+    m1 = md5()
+    m1.update(sign.encode("utf-8"))
+    sign = m1.hexdigest()
+    myurl = myurl+'?appid='+appid+'&q='+urllib.parse.quote(q)+'&from='+fromLang+'&to='+toLang+'&salt='+str(salt)+'&sign='+sign
+    res = json.loads(requests.get(myurl).text)['trans_result'][0]['dst']
+
+    return res
 
 
 def eval_img(pred):
@@ -67,12 +106,11 @@ def eval_img(pred):
 
 def eval_sentence(handler, msg):
     if check_contain_chinese(msg) == False:  # 输入英文
-        translator_CH = Translator(from_lang="english", to_lang="chinese")
-        translator_EN = Translator(from_lang="chinese", to_lang="english")
-        translation = translator_CH.translate(msg)
-        answer = translator_EN.translate(handler.chat_main(translation, translator_EN))
+        answer = translate_api_CH(msg)
+        answer = translate_api_EN(handler.chat_main(answer, translate_api_EN))
     else:  # 输入中文
-        answer = handler.chat_main(msg)
+        answer = handler.chat_main(msg, translate_api_EN)
+        answer = translate_api_CH(answer)
 
     return answer
 
@@ -91,10 +129,9 @@ if __name__ == '__main__':
                      "乳腺癌能治愈吗" \
                      "乳腺癌的治疗方法"
         elif check_contain_chinese(question) == False:
-            translator_CH = Translator(from_lang="english", to_lang="chinese")
-            translator_EN = Translator(from_lang="chinese", to_lang="english")
-            translation = translator_CH.translate(question)
-            answer = translator_EN.translate(handler.chat_main(translation, translator_EN))
+            translation = json.loads(requests.get(translate_api_CH(question)).text)['trans_result'][0]['dst']
+            answer = json.loads(requests.get(translate_api_EN(handler.chat_main(translation))).text)['trans_result'][0][
+                'dst']
         else:
             answer = handler.chat_main(question)
         print('系统:', answer)
