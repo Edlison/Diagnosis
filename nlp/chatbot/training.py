@@ -4,8 +4,8 @@ import os
 import torch
 import torch.nn as nn
 import random
-from config import device, MAX_LENGTH, SOS_token
-from preprocess import batch_to_train_data
+from nlp.chatbot.config import device, MAX_LENGTH, SOS_token
+from nlp.chatbot.preprocess import batch_to_train_data
 
 
 def maskNLLLoss(inp, target, mask):

@@ -2,8 +2,8 @@
 # @Date    : 7/27/21 19:56
 import torch
 import torch.nn as nn
-from config import device, SOS_token, MAX_LENGTH
-from preprocess import indexes_from_sentence, normalize_string
+from nlp.chatbot.config import device, SOS_token, MAX_LENGTH
+from nlp.chatbot.preprocess import indexes_from_sentence, normalize_string
 
 
 class GreedySearchDecoder(nn.Module):
@@ -37,7 +37,7 @@ class GreedySearchDecoder(nn.Module):
         return all_tokens, all_scores
 
 
-def evaluate(encoder, decoder, searcher, voc, sentence, max_length=MAX_LENGTH):
+def evaluate(searcher, voc, sentence, max_length=MAX_LENGTH):
     ### Format input sentence as a batch
     # words -> indexes
     indexes_batch = [indexes_from_sentence(voc, sentence)]
@@ -55,7 +55,7 @@ def evaluate(encoder, decoder, searcher, voc, sentence, max_length=MAX_LENGTH):
     return decoded_words
 
 
-def evaluateInput(encoder, decoder, searcher, voc):
+def evaluateInput(searcher, voc):
     input_sentence = ''
     while(1):
         try:
@@ -66,7 +66,7 @@ def evaluateInput(encoder, decoder, searcher, voc):
             # Normalize sentence
             input_sentence = normalize_string(input_sentence)
             # Evaluate sentence
-            output_words = evaluate(encoder, decoder, searcher, voc, input_sentence)
+            output_words = evaluate(searcher, voc, input_sentence)
             # Format and print response sentence
             output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD')]
             print('Bot:', ' '.join(output_words))

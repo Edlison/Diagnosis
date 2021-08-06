@@ -41,7 +41,30 @@ function upload_pic(){
             "                </th>\n" +
             "              </tr>\n" +
             "            </table>"
+    }).fail(function (){
+        alert("server error")
     })
+}
+
+function upload_pic_plus() {
+    let formData = new FormData($("#pic")[0])
+        console.log('点击提交之后，打印FormData中的数据')
+        console.log(formData.get('pic'))
+        $.ajax({
+            url: 'http://127.0.0.1:5000/i',
+            type: 'POST',
+            data: formData,
+            async: false,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function(returndata) {
+                alert(returndata);
+            },
+            error: function(error) {
+                alert(error);
+            }
+        })
 }
 
 function flash_question(){
@@ -61,6 +84,6 @@ function flash_question(){
         var modal_dialog = document.getElementById("message")
         modal_dialog.scrollTop=modal_dialog.scrollHeight
     }).fail(function (){
-        alert("nonononono")
+        alert("server error")
     })
 }

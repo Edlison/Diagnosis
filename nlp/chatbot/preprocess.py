@@ -7,7 +7,7 @@ import random
 import re
 import codecs
 import unicodedata
-from config import SOS_token, EOS_token, PAD_token, MAX_LENGTH
+from nlp.chatbot.config import SOS_token, EOS_token, PAD_token, MAX_LENGTH
 
 
 # Format

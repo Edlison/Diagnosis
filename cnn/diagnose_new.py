@@ -20,12 +20,13 @@ from tensorflow.keras.preprocessing import *
     # 0, healthy
     # -1, wrong size
     # -2, not image
-def diagnose_with_model(model_path, file_path):
+def diagnose_with_model(file_path):
     # check if the uploaded file is an image
     if (imghdr.what(file_path) not in ('jpeg','jpg','png')):
         return -2
 
     # load the model
+    model_path = 'data/Model_now'
     model = tf.keras.models.load_model(model_path)   
 
     # load the image
@@ -46,8 +47,6 @@ def diagnose_with_model(model_path, file_path):
     # return the classified result 0/1
     return np.argmax(y_prob)
 
-model_path = 'data/Model_now'
-file_path = 'data/cls1_1.png'
 
-res = diagnose_with_model(model_path, file_path)
-print('res ', res)
+if __name__ == '__main__':
+    ...

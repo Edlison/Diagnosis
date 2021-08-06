@@ -2,13 +2,13 @@
 # @Date    : 7/27/21 19:57
 import torch
 import torch.nn as nn
-from model import EncoderRNN, LuongAttnDecoderRNN
-from config import device
-from evaluation import GreedySearchDecoder, evaluateInput
-from preprocess import Voc
+from nlp.chatbot.model import EncoderRNN, LuongAttnDecoderRNN
+from nlp.chatbot.config import device
+from nlp.chatbot.evaluation import GreedySearchDecoder, evaluate
+from nlp.chatbot.preprocess import Voc, normalize_string
 
 
-def eval(load_file, attn_model, hidden_size, encoder_n_layers, decoder_n_layers, dropout):
+def load_pretrained(load_file, attn_model, hidden_size, encoder_n_layers, decoder_n_layers, dropout):
     voc = Voc('movie')
     # If loading on same machine the model was trained on
     checkpoint = torch.load(load_file, map_location=torch.device('cpu'))
@@ -37,8 +37,20 @@ def eval(load_file, attn_model, hidden_size, encoder_n_layers, decoder_n_layers,
     # Initialize search module
     searcher = GreedySearchDecoder(encoder, decoder)
 
-    # Begin chatting (uncomment and run the following line to begin)
-    evaluateInput(encoder, decoder, searcher, voc)
+    return searcher, voc
+
+
+def eval_sentence(msg, searcher, voc):
+    try:
+        # Normalize sentence
+        input_sentence = normalize_string(msg)
+        # Evaluate sentence
+        output_words = evaluate(searcher, voc, input_sentence)
+        # Format and print response sentence
+        output_words[:] = [x for x in output_words if not (x == 'EOS' or x == 'PAD')]
+        return ' '.join(output_words)
+    except KeyError:
+        return 'Try again.'
 
 
 if __name__ == '__main__':
@@ -54,4 +66,7 @@ if __name__ == '__main__':
     loadFilename = './data/50000_checkpoint.tar'
 
     # run(loadFilename, model_name, corpus_name, batch_size, attn_model, hidden_size, encoder_n_layers, decoder_n_layers, dropout)
-    eval(loadFilename, attn_model, hidden_size, encoder_n_layers, decoder_n_layers, dropout)
+    searcher, voc = load_pretrained(loadFilename, attn_model, hidden_size, encoder_n_layers, decoder_n_layers, dropout)
+    res = eval_sentence('ooo', searcher, voc)
+    print(res)
+
